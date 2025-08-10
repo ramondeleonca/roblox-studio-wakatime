@@ -18,7 +18,7 @@ function module.trimString(s: string)
 end
 
 function module.isValidWakaTimeApiKey(key: string)
-	return key:match("^waka_") ~= nil
+	return key ~= nil -- key:match("^waka_") ~= nil
 end
 
 return module

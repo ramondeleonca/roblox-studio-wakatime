@@ -40,6 +40,7 @@ end
 
 local function sendHeartbeat(plugin: Plugin, activity: StudioActivity)
 	local apiKey = storageHandler.getWakaTimeKey(plugin)
+	local apiEndpoint = storageHandler.getWakaTimeApiEndpoint(plugin) or "https://api.wakatime.com/api/v1"
 	if not apiKey or not util.isValidWakaTimeApiKey(apiKey) then
 		return
 	end
@@ -88,19 +89,29 @@ local function sendHeartbeat(plugin: Plugin, activity: StudioActivity)
 	lastSentActivity = activity
 
 	local ok, response = pcall(HttpService.RequestAsync, HttpService, {
-		Url = "https://api.wakatime.com/api/v1/users/current/heartbeats",
+		Url = `{apiEndpoint}/users/current/heartbeats`,
 		Method = "POST",
 		Body = HttpService:JSONEncode(bodyToSend),
 		Headers = {
-			["Authorization"] = `Basic {apiKey}`,
+			-- CHANGED THIS FROM BASIC TO BEARER
+			["Authorization"] = `Bearer {apiKey}`,
 			["Content-Type"] = "application/json",
 		},
 	})
+
 	if ok then
-		-- print("Sent WakaTime heartbeat", bodyToSend)
+		if storageHandler.getDebugMode(plugin) then
+			print("Sent WakaTime heartbeat", bodyToSend, response)
+		else
+			print("Sent WakaTime heartbeat")
+		end
 	else
 		warn("Failed to call WakaTime API.", response.Body)
 	end
+end
+
+module.FORCEDsendHeartbeat = function(plugin: Plugin, activity: StudioActivity?)
+	return sendHeartbeat(plugin, activity or getCurrentActivity() or "Editing")
 end
 
 function module.onActivityCallback(plugin: Plugin, force: boolean?)

@@ -3,6 +3,7 @@ local ReactRoblox = require(script.Parent.Packages.ReactRoblox)
 local StudioComponents = require(script.Parent.Packages.StudioComponents)
 local storageHandler = require(script.Parent.storageHandler)
 local util = require(script.Parent.util)
+local wakatime = require(script.Parent.wakatime)
 local e = React.createElement
 local module = {}
 
@@ -58,6 +59,9 @@ local function MainUI(props: {
 	initialApiKey: string,
 	setApiKey: (value: string) -> (),
 
+	initialApiEndpoint: string,
+	setApiEndpoint: (value: string) -> (),
+
 	initialShouldLogPlayTime: boolean,
 	setShouldLogPlayTime: (value: boolean) -> (),
 
@@ -66,9 +70,13 @@ local function MainUI(props: {
 
 	initialShouldLogCodingTime: boolean,
 	setShouldLogCodingTime: (value: boolean) -> (),
+	
+	initialDebugMode: boolean,
+	setDebugMode: (value: boolean) -> (),
 })
 	local projectText, setProjectText = React.useState(props.initialProject)
 	local keyText, setKeyText = React.useState(props.initialApiKey)
+	local endpointText, setEndpointText = React.useState(props.initialApiEndpoint)
 
 	return e(StudioComponents.ScrollFrame, {
 		PaddingLeft = UDim.new(0, 10),
@@ -122,6 +130,24 @@ local function MainUI(props: {
 
 		VerticalSpace({ Height = 10 }),
 
+		e(StudioComponents.Label, {
+			Text = `WakaTime API endpoint <b>(Please paste your API endpoint URL)</b>`,
+			TextXAlignment = Enum.TextXAlignment.Left,
+			Size = UDim2.new(1, 0, 0, 30),
+			RichText = true,
+		}),
+		e(StudioComponents.TextInput, {
+			Text = endpointText,
+			OnChanged = function(newText)
+				setEndpointText(newText)
+				props.setApiEndpoint(newText)
+			end,
+			ClearTextOnFocus = false,
+			PlaceholderText = "Find it in your WakaTime account settings",
+		}),
+
+		VerticalSpace({ Height = 10 }),
+
 		e(Checkbox, {
 			Label = "Log time in the editor",
 			InitialValue = props.initialShouldLogEditTime,
@@ -139,6 +165,12 @@ local function MainUI(props: {
 			InitialValue = props.initialShouldLogCodingTime,
 			SetValue = props.setShouldLogCodingTime,
 		}),
+
+		e(Checkbox, {
+			Label = "Debug mode",
+			InitialValue = props.initialDebugMode,
+			SetValue = props.setDebugMode,
+		})
 	})
 end
 
@@ -175,6 +207,11 @@ function module.init(plugin: Plugin)
 			storageHandler.setWakaTimeKey(plugin, value)
 		end,
 
+		initialApiEndpoint = storageHandler.getWakaTimeApiEndpoint(plugin) or "",
+		setApiEndpoint = function(value)
+			storageHandler.setWakaTimeApiEndpoint(plugin, value)
+		end,
+
 		initialShouldLogPlayTime = storageHandler.getShouldLogPlayTime(plugin),
 		setShouldLogPlayTime = function(value)
 			storageHandler.setShouldLogPlayTime(plugin, value)
@@ -188,6 +225,11 @@ function module.init(plugin: Plugin)
 		initialShouldLogCodingTime = storageHandler.getShouldLogCodingTime(plugin),
 		setShouldLogCodingTime = function(value)
 			storageHandler.setShouldLogCodingTime(plugin, value)
+		end,
+
+		initialDebugMode = storageHandler.getDebugMode(plugin),
+		setDebugMode = function(value)
+			storageHandler.setDebugMode(plugin, value)
 		end,
 	}))
 end

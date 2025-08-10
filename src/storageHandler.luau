@@ -36,6 +36,14 @@ function module.setWakaTimeKey(plugin: Plugin, value: string)
 	plugin:SetSetting("WakaTimeKey", value)
 end
 
+function module.getWakaTimeApiEndpoint(plugin: Plugin)
+	return plugin:GetSetting("WakaTimeApiEndpoint") :: string?
+end
+
+function module.setWakaTimeApiEndpoint(plugin: Plugin, value: string)
+	plugin:SetSetting("WakaTimeApiEndpoint", value)
+end
+
 function module.getShouldLogPlayTime(plugin: Plugin)
 	local value = plugin:GetSetting("WakaTimeShouldLogPlayTime")
 	return if value == nil then true else value
@@ -61,6 +69,15 @@ end
 
 function module.setShouldLogCodingTime(plugin: Plugin, value: boolean)
 	plugin:SetSetting("WakaTimeShouldLogCodingTime", value)
+end
+
+function module.getDebugMode(plugin: Plugin)
+	local value = plugin:GetSetting("WakaTimeDebugMode")
+	return if value == nil then false else value
+end
+
+function module.setDebugMode(plugin: Plugin, value: boolean)
+	plugin:SetSetting("WakaTimeDebugMode", value)
 end
 
 return module
